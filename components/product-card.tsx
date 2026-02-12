@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import type { Product } from '@/lib/types'
 
 interface ProductCardProps {
@@ -14,10 +15,12 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="border-2 border-black overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:scale-105 bg-white group">
         <div className="aspect-square bg-secondary overflow-hidden relative">
           {product.images && product.images.length > 0 ? (
-            <img
+            <Image
               src={product.images[0] || "/placeholder.svg"}
               alt={product.name}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+              fill={true}
+              style={{ objectFit: 'cover' }}
+              className="group-hover:scale-110 transition-transform duration-300"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gray-200">

@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
@@ -488,10 +489,12 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                                 </div>
                               ) : (
                                 <>
-                                  <img
+                                  <Image
                                     src={image || '/placeholder.svg'}
                                     alt={`Product ${index}`}
-                                    className="w-full aspect-square object-cover border border-black"
+                                    fill={true}
+                                    style={{ objectFit: 'cover' }}
+                                    className="border border-black"
                                   />
                                   <button
                                     onClick={() => handleRemoveImage(index)}

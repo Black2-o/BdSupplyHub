@@ -3,6 +3,7 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Loader2 } from 'lucide-react' // Added Loader2 import
@@ -118,12 +119,13 @@ export default function ProductDetailsPage({ params }: ProductDetailsPageProps) 
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
         <div>
-          <div className="aspect-square bg-secondary border border-black mb-4 flex items-center justify-center">
+          <div className="aspect-square bg-secondary border border-black mb-4 flex items-center justify-center relative">
             {mainImage ? (
-              <img
+              <Image
                 src={mainImage || "/placeholder.svg"}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                fill={true}
+                style={{ objectFit: 'cover' }}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-gray-200">
@@ -138,13 +140,14 @@ export default function ProductDetailsPage({ params }: ProductDetailsPageProps) 
                   key={i}
                   className={`aspect-square border-2 ${
                     img === mainImage ? 'border-black' : 'border-gray-200'
-                  } cursor-pointer`}
+                  } cursor-pointer relative`}
                   onClick={() => setMainImage(img)}
                 >
-                  <img
+                  <Image
                     src={img || "/placeholder.svg"}
                     alt={`${product.name} thumbnail ${i + 1}`}
-                    className="w-full h-full object-cover"
+                    fill={true}
+                    style={{ objectFit: 'cover' }}
                   />
                 </div>
               ))}
@@ -233,12 +236,13 @@ export default function ProductDetailsPage({ params }: ProductDetailsPageProps) 
             {relatedProducts.map((prod) => (
               <Link key={prod.id} href={`/product/${prod.id}`}>
                 <div className="border border-black p-4 cursor-pointer hover:bg-secondary transition-colors h-full">
-                  <div className="aspect-square bg-secondary mb-4">
+                  <div className="aspect-square bg-secondary mb-4 relative">
                     {prod.images && prod.images[0] && (
-                      <img
+                      <Image
                         src={prod.images[0] || "/placeholder.svg"}
                         alt={prod.name}
-                        className="w-full h-full object-cover"
+                        fill={true}
+                        style={{ objectFit: 'cover' }}
                       />
                     )}
                   </div>
