@@ -1,13 +1,22 @@
 'use client'
 
 import React from "react"
+import dynamic from 'next/dynamic'
 
 import { useState, useEffect, useRef } from 'react'
-import { ProductCard } from '@/components/product-card'
+import { ProductCardSkeleton } from '@/components/product-card-skeleton'
+// ...
+const ProductCard = dynamic(() => import('@/components/product-card').then((mod) => mod.ProductCard), {
+  loading: () => <ProductCardSkeleton />,
+  ssr: false,
+});
 import { AdminPanel } from '@/components/admin-panel'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ChevronLeft, ChevronRight, Loader2, LogOut, Settings } from 'lucide-react'
+import { ChevronLeft, ChevronRight, LogOut, Settings } from 'lucide-react'
+const Loader2 = dynamic(() => import('lucide-react').then((mod) => mod.Loader2), {
+  ssr: false,
+});
 import Link from 'next/link'
 import type { Category, Product } from '@/lib/types'
 

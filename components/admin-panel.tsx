@@ -482,7 +482,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                       {formData.images && formData.images.length > 0 && (
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                           {formData.images.map((image, index) => (
-                            <div key={index} className="relative group">
+                            <div key={index} className="relative group w-full aspect-square">
                               {uploadingImages[index] ? (
                                 <div className="w-full aspect-square bg-gray-100 border-2 border-black flex items-center justify-center">
                                   <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
@@ -494,7 +494,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                                     alt={`Product ${index}`}
                                     fill={true}
                                     style={{ objectFit: 'cover' }}
-                                    className="border border-black"
+                                    className="border border-black object-cover"
                                   />
                                   <button
                                     onClick={() => handleRemoveImage(index)}
