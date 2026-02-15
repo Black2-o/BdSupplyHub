@@ -1,4 +1,5 @@
-import React from "react"
+import PwaInstallPrompt from '@/components/pwa-install-prompt'
+import React from 'react'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 
@@ -8,9 +9,13 @@ const _geist = Geist({ subsets: ['latin'] })
 const _geistMono = Geist_Mono({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'B2B Wholesale',
-  description: 'Wholesale ecommerce platform',
-  generator: 'v0.app',
+  title: 'BDSUPPLYHUB',
+  description:
+    'Wholesale ecommerce platform. B2B wholesale marketplace for bulk orders in Bangladesh From Dhaka To Others Area Of Bangladesh',
+  manifest: '/manifest.json',
+  icons: {
+    icon: '/favicon.ico',
+  },
 }
 
 export default function RootLayout({
@@ -20,7 +25,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        {children}
+        <PwaInstallPrompt />
+      </body>
     </html>
   )
 }
