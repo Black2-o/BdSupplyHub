@@ -18,11 +18,11 @@ const Loader2 = dynamic(() => import('lucide-react').then((mod) => mod.Loader2),
   ssr: false,
 });
 import Link from 'next/link'
-import type { Category, Product } from '@/lib/types'
+import type { Category, Product, ProductWithRelations } from '@/lib/types'
 
 export default function Home() {
   const [categories, setCategories] = useState<Category[]>([])
-  const [products, setProducts] = useState<Product[]>([])
+  const [products, setProducts] = useState<ProductWithRelations[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [carouselIndex, setCarouselIndex] = useState(0)
   const carouselRef = useRef<HTMLDivElement>(null)
@@ -48,7 +48,7 @@ export default function Home() {
           throw new Error('Failed to fetch categories')
         }
 
-        const productsData: Product[] = await productsResponse.json()
+        const productsData: ProductWithRelations[] = await productsResponse.json()
         const categoriesData: Category[] = await categoriesResponse.json()
 
         setProducts(productsData)
@@ -102,9 +102,9 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-4 py-16 sm:px-8">
         <div className="flex justify-between items-start mb-12">
           <div>
-            <h1 className="text-5xl font-bold mb-2 text-balance">Wholesale Products</h1>
+            <h1 className="text-5xl font-bold mb-2 text-balance">Wholesale Cloth Collection</h1>
             <p className="text-lg text-muted-foreground">
-              B2B wholesale marketplace for bulk orders
+              Direct From Dhaka - Premium Fabrics At Wholesale Prices For Retailers Across Bangladesh
             </p>
           </div>
           {/* <div className="flex gap-2">
@@ -200,21 +200,21 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div>
               <p className="text-sm font-bold text-muted-foreground uppercase mb-2">
-                Bulk Orders
+                Minimum Order
               </p>
-              <p className="text-lg font-bold">Minimum order quantities starting from 50 units</p>
+              <p className="text-lg font-bold">Minimum ৳10K Per Order</p>
             </div>
             <div>
               <p className="text-sm font-bold text-muted-foreground uppercase mb-2">
                 Fast Delivery
               </p>
-              <p className="text-lg font-bold">Quick turnaround on wholesale orders</p>
+              <p className="text-lg font-bold">Delivery Within 2-3 Days</p>
             </div>
             <div>
               <p className="text-sm font-bold text-muted-foreground uppercase mb-2">
                 Direct Contact
               </p>
-              <p className="text-lg font-bold">WhatsApp for immediate inquiries</p>
+              <p className="text-lg font-bold"><a href="https://wa.me/601345680081?text=Hello%20I%20would%20like%20more%20information" className="text-[#25D366] hover:text-[#1ebe5d] transition duration-300">WhatsApp</a> For Instant Quotes</p>
             </div>
           </div>
         </div>

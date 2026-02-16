@@ -22,12 +22,16 @@ export async function GET(request: NextRequest) {
       const category_name = product.categories?.name;
 
       // Remove the original product_images and categories objects from the product
-      const { product_images, categories, ...rest } = product;
+      const { product_images, categories, moq, fabricType, sizeRange, lowPrice, ...rest } = product;
 
       return {
         ...rest,
         images,
         category_name,
+        shop_name: moq,
+        fabricType: fabricType,
+        sizeRange: sizeRange,
+        lowPrice: lowPrice,
       }
     })
 
@@ -65,10 +69,10 @@ export async function POST(request: NextRequest) {
       category_id,
       description,
       moq: String(moq), // DB column is 'text'
-      fabric_type: fabricType, // Convert to snake_case
-      size_range: sizeRange, // Convert to snake_case
+      fabricType: fabricType, // Convert to snake_case
+      sizeRange: sizeRange, // Convert to snake_case
       price: String(price), // DB column is 'text'
-      low_price: lowPrice ? String(lowPrice) : null, // Convert to snake_case
+      lowPrice: lowPrice ? String(lowPrice) : null, // Convert to snake_case
       recommended,
     }
 

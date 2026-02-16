@@ -10,11 +10,11 @@ export interface Product {
   name: string
   category_id: string
   description?: string // Make optional as per DB schema
-  moq?: number // Make optional as per DB schema
-  fabric_type?: string // Make optional as per DB schema
-  size_range?: string // Make optional as per DB schema
+  shop_name?: string // Make optional as per DB schema
+  fabricType?: string // Make optional as per DB schema
+  sizeRange?: string // Make optional as per DB schema
   price: number
-  low_price?: number // Make optional as per DB schema
+  lowPrice?: number // Make optional as per DB schema
   recommended: boolean
   created_at?: string // Optional, handled by DB
   updated_at?: string // Optional, handled by DB

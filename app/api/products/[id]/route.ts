@@ -25,14 +25,19 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     }
 
     // Transform the data to match ProductWithRelations structure
+    const { product_images, product_faqs, moq, fabricType, sizeRange, lowPrice, ...rest } = productData;
     const product: ProductWithRelations = {
-      ...productData,
-      images: productData.product_images
-        ? productData.product_images
+      ...rest,
+      images: product_images
+        ? product_images
             .sort((a: any, b: any) => a.display_order - b.display_order)
             .map((img: any) => img.image_url)
         : [],
-      faqs: productData.product_faqs || [],
+      faqs: product_faqs || [],
+      shop_name: moq,
+      fabricType: fabricType,
+      sizeRange: sizeRange,
+      lowPrice: lowPrice,
     }
 
     // Clean up temporary properties from the original productData

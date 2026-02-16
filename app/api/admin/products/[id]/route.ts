@@ -31,19 +31,20 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     }
 
     // Transform the data to match ProductWithRelations structure
+    const { product_images, product_faqs, moq, fabricType, sizeRange, lowPrice, ...rest } = productData;
     const product: ProductWithRelations = {
-      ...productData,
-      images: productData.product_images
-        ? productData.product_images
+      ...rest,
+      images: product_images
+        ? product_images
             .sort((a: any, b: any) => a.display_order - b.display_order)
             .map((img: any) => img.image_url)
         : [],
-      faqs: productData.product_faqs || [],
+      faqs: product_faqs || [],
+      shop_name: moq,
+      fabricType: fabricType,
+      sizeRange: sizeRange,
+      lowPrice: lowPrice,
     }
-
-    // Clean up temporary properties from the original productData
-    delete (product as any).product_images;
-    delete (product as any).product_faqs;
 
     return NextResponse.json(product, { status: 200 })
   } catch (error) {
@@ -69,10 +70,14 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
     const { images, faqs, ...productData } = body
 
     // Prepare product data for updating the 'products' table
-    const productToUpdate: Partial<Product> = { ...productData }
-    if (typeof productToUpdate.price === 'string') productToUpdate.price = Number(productToUpdate.price)
-    if (typeof productToUpdate.moq === 'string') productToUpdate.moq = Number(productToUpdate.moq)
-    if (typeof productToUpdate.low_price === 'string') productToUpdate.low_price = Number(productToUpdate.low_price)
+    const { shop_name, fabricType, sizeRange, lowPrice, ...restOfProductData } = productData as any;
+    const productToUpdate: {[key: string]: any} = { ...restOfProductData };
+    if (productData.price) productToUpdate.price = Number(productData.price);
+    if (shop_name) productToUpdate.moq = shop_name;
+    if (fabricType) productToUpdate.fabricType = fabricType;
+    if (sizeRange) productToUpdate.sizeRange = sizeRange;
+    if (lowPrice) productToUpdate.lowPrice = lowPrice;
+    
     // Supabase handles updated_at automatically if configured, otherwise we'd set it here.
     // productToUpdate.updated_at = new Date().toISOString();
 

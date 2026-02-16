@@ -30,12 +30,16 @@ export async function GET(request: NextRequest) {
       const faqs = product.product_faqs || [];
 
       // Remove the original product_images and product_faqs objects from the product
-      const { product_images, product_faqs, ...rest } = product;
+      const { product_images, product_faqs, moq, fabricType, sizeRange, lowPrice, ...rest } = product;
 
       return {
         ...rest,
         images,
         faqs,
+        shop_name: moq,
+        fabricType: fabricType,
+        sizeRange: sizeRange,
+        lowPrice: lowPrice,
       }
     })
 
@@ -63,10 +67,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Prepare product data for insertion into 'products' table
-    const productToInsert: Product = {
-      ...productData,
+    const { shop_name, fabricType, sizeRange, lowPrice, ...restOfProductData } = productData;
+    const productToInsert = {
+      ...restOfProductData,
       price: Number(productData.price),
-      moq: productData.moq ? Number(productData.moq) : undefined, // Handle optional moq
+      moq: shop_name,
+      fabricType: fabricType,
+      sizeRange: sizeRange,
+      lowPrice: lowPrice,
       recommended: productData.recommended || false,
     }
 

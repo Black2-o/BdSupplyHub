@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Loader2 } from 'lucide-react' // Added Loader2 import
-import type { Product, Category } from '@/lib/types'
+import type { Product, Category, ProductWithRelations } from '@/lib/types'
 
 interface ProductDetailsPageProps {
   params: { id: string } // Changed from Promise<{ id: string }> to { id: string }
@@ -17,9 +17,9 @@ export default function ProductDetailsPage({ params }: ProductDetailsPageProps) 
   const unwrappedParams = React.use(params);
   const productId = unwrappedParams.id;
 
-  const [product, setProduct] = useState<Product | null>(null)
+  const [product, setProduct] = useState<ProductWithRelations | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
-  const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
+  const [relatedProducts, setRelatedProducts] = useState<ProductWithRelations[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -50,9 +50,9 @@ export default function ProductDetailsPage({ params }: ProductDetailsPageProps) 
           throw new Error('Failed to fetch all products for related items')
         }
 
-        const productData: Product = await productResponse.json()
+        const productData: ProductWithRelations = await productResponse.json()
         const categoriesData: Category[] = await categoriesResponse.json()
-        const allProductsData: Product[] = await allProductsResponse.json()
+        const allProductsData: ProductWithRelations[] = await allProductsResponse.json()
 
         setProduct(productData)
         setCategories(categoriesData)
@@ -171,9 +171,9 @@ export default function ProductDetailsPage({ params }: ProductDetailsPageProps) 
           <div className="border-t border-b border-black py-6 space-y-3">
             <div>
               <p className="text-xs font-bold text-muted-foreground uppercase">
-                Minimum Order Quantity
+                Shop Name
               </p>
-              <p className="font-bold">{product.moq}</p>
+              <p className="font-bold">{product.shop_name}</p>
             </div>
             <div>
               <p className="text-xs font-bold text-muted-foreground uppercase">
@@ -191,14 +191,14 @@ export default function ProductDetailsPage({ params }: ProductDetailsPageProps) 
 
           <div className="space-y-2">
             <Button
-            onClick={() =>
-              window.open(
-                `https://wa.me/8801345680081?text=${encodeURIComponent(
-                  `Hi, I'm interested in ${product.name} `
-                )}`,
-                '_blank'
-              )
-            }
+              onClick={() =>
+                window.open(
+                  `https://wa.me/8801345680081?text=${encodeURIComponent(
+                    `Hi, I'm interested in ${product.name}\nProduct Link: https://black2o.wiki/product/${product.id}\nProduct Shop: ${product.shop_name}\n`
+                  )}`,
+                  '_blank'
+                )
+              }
               className="w-full bg-black text-white hover:bg-gray-800 h-12 text-base"
             >
               Contact on WhatsApp

@@ -2,10 +2,10 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import type { Product } from '@/lib/types'
+import type { Product, ProductWithRelations } from '@/lib/types'
 
 interface ProductCardProps {
-  product: Product
+  product: ProductWithRelations
 }
 
 export function ProductCard({ product }: ProductCardProps) {
@@ -48,8 +48,8 @@ export function ProductCard({ product }: ProductCardProps) {
                 <span className="text-xl font-bold text-black">৳{product.price}</span>
               </div>
             )}
-            {product.moq && (
-              <p className="text-xs text-muted-foreground">MOQ: {product.moq}</p>
+            {product.shop_name && (
+              <p className="text-xs text-muted-foreground">Shop Name: {product.shop_name}</p>
             )}
           </div>
         </div>

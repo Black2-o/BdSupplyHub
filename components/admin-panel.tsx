@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { X, Upload, Plus, Trash2, Loader2 } from 'lucide-react'
-import type { Product, Category } from '@/lib/types'
+import type { Product, Category, ProductWithRelations } from '@/lib/types'
 
 interface AdminPanelProps {
   onLogout: () => void
@@ -19,9 +19,9 @@ interface AdminPanelProps {
 export function AdminPanel({ onLogout }: AdminPanelProps) {
   const [activeTab, setActiveTab] = useState<'products' | 'categories'>('products')
   const [categories, setCategories] = useState<Category[]>([])
-  const [products, setProducts] = useState<Product[]>([])
+  const [products, setProducts] = useState<ProductWithRelations[]>([])
   const [newCategoryName, setNewCategoryName] = useState('')
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [editingProduct, setEditingProduct] = useState<ProductWithRelations | null>(null)
   const [newFaqQuestion, setNewFaqQuestion] = useState('')
   const [newFaqAnswer, setNewFaqAnswer] = useState('')
   const [uploadingImages, setUploadingImages] = useState<Record<number, boolean>>({})
@@ -30,11 +30,11 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
   const [apiError, setApiError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState(''); // New state for search term
 
-  const [formData, setFormData] = useState<Partial<Product>>({
+  const [formData, setFormData] = useState<Partial<ProductWithRelations>>({
     name: '',
     category_id: '',
     description: '',
-    moq: 0,
+    shop_name: '',
     fabricType: '',
     sizeRange: '',
     price: 0,
@@ -51,7 +51,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       product.name.toLowerCase().includes(lowerCaseSearchTerm) ||
       (product.description && product.description.toLowerCase().includes(lowerCaseSearchTerm)) ||
       (categories.find(cat => cat.id === product.category_id)?.name.toLowerCase().includes(lowerCaseSearchTerm)) ||
-      (product.moq && String(product.moq).includes(lowerCaseSearchTerm))
+      (product.shop_name && product.shop_name.toLowerCase().includes(lowerCaseSearchTerm))
     );
   });
 
@@ -71,7 +71,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
         throw new Error('Failed to fetch categories for admin panel')
       }
 
-      const productsData: Product[] = await productsResponse.json()
+      const productsData: ProductWithRelations[] = await productsResponse.json()
       const categoriesData: Category[] = await categoriesResponse.json()
 
       setProducts(productsData)
@@ -134,8 +134,8 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
   }
 
   const handleAddProduct = async () => {
-    if (!formData.name || !formData.category_id || formData.price === undefined || formData.price <= 0 || formData.moq === undefined || formData.moq <= 0) {
-      setApiError('Missing required product fields: name, category ID, price (must be > 0), moq (must be > 0).')
+    if (!formData.name || !formData.category_id || formData.price === undefined || formData.price <= 0 || !formData.shop_name) {
+      setApiError('Missing required product fields: name, category ID, price (must be > 0), shop_name.')
       return
     }
     setLoading(true)
@@ -151,7 +151,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
         throw new Error(errData.message || 'Failed to add product')
       }
       setFormData({
-        name: '', category_id: '', description: '', moq: 0, fabricType: '', sizeRange: '',
+        name: '', category_id: '', description: '', shop_name: '', fabricType: '', sizeRange: '',
         price: 0, lowPrice: 0, images: [], faqs: [], recommended: false,
       })
       setNewFaqQuestion('')
@@ -169,8 +169,8 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       setApiError('No product selected for editing.')
       return
     }
-    if (!formData.name || !formData.category_id || formData.price === undefined || formData.price <= 0 || formData.moq === undefined || formData.moq <= 0) {
-      setApiError('Missing or invalid required product fields: name, category ID, price (must be > 0), moq (must be > 0).')
+    if (!formData.name || !formData.category_id || formData.price === undefined || formData.price <= 0 || !formData.shop_name) {
+      setApiError('Missing or invalid required product fields: name, category ID, price (must be > 0), shop_name.')
       return
     }
     setLoading(true)
@@ -187,7 +187,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       }
       setEditingProduct(null)
       setFormData({
-        name: '', category_id: '', description: '', moq: 0, fabricType: '', sizeRange: '',
+        name: '', category_id: '', description: '', shop_name: '', fabricType: '', sizeRange: '',
         price: 0, lowPrice: 0, images: [], faqs: [], recommended: false,
       })
       setNewFaqQuestion('')
@@ -219,7 +219,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
     }
   }
 
-  const startEditProduct = (product: Product) => {
+  const startEditProduct = (product: ProductWithRelations) => {
     setEditingProduct(product)
     setFormData(product)
     setNewFaqQuestion('')
@@ -428,10 +428,10 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                     <h3 className="text-lg font-bold mb-4">Product Details</h3>
                     <div className="space-y-4">
                       <Input
-                        type="number"
-                        value={formData.moq || ''}
-                        onChange={(e) => setFormData({ ...formData, moq: Number(e.target.value) })}
-                        placeholder="MOQ (e.g., 100 units)"
+                        type="text"
+                        value={formData.shop_name || ''}
+                        onChange={(e) => setFormData({ ...formData, shop_name: e.target.value })}
+                        placeholder="Shop Name (e.g., 'Arihant Fashion')"
                         className="border-black"
                       />
 
@@ -587,7 +587,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                             name: '',
                             category_id: '',
                             description: '',
-                            moq: 0,
+                            shop_name: '',
                             fabricType: '',
                             sizeRange: '',
                             price: 0,
@@ -613,7 +613,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
             <h3 className="text-lg font-bold mb-4">Products List</h3>
             <Input
               type="text"
-              placeholder="Search products by name, description, category, or MOQ..."
+              placeholder="Search products by name, description, category, or Shop Name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="mb-4 border-black"
@@ -643,8 +643,8 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                           <p className="font-medium">{product.lowPrice || 'N/A'}</p>
                         </div>
                         <div>
-                          <span className="text-xs font-semibold text-muted-foreground">MOQ</span>
-                          <p className="font-medium">{product.moq || 'N/A'}</p>
+                          <span className="text-xs font-semibold text-muted-foreground">Shop Name</span>
+                          <p className="font-medium">{product.shop_name || 'N/A'}</p>
                         </div>
                         <div>
                           <span className="text-xs font-semibold text-muted-foreground">Images</span>

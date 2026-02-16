@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'B2B wholesale marketplace for bulk orders in Bangladesh From Dhaka To Others Area Of Bangladesh',
     start_url: '/',
     display: 'standalone',
-    background_color: '#ffffff',
+    background_color: '#f6f4f0',
     theme_color: '#000000',
     icons: [
       {
