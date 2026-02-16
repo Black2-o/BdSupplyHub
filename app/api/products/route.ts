@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase' // Use public supabase client
+import { supabaseAdmin, verifyAdminMiddleware } from '@/lib/auth'
 import { ProductWithRelations } from '@/lib/types'
 
 export async function GET(request: NextRequest) {
@@ -50,41 +51,64 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const {
-      name,
-      category_id, // This one is already snake_case in your payload
-      description,
-      moq,
-      fabricType, // camelCase from client
-      sizeRange, // camelCase from client
-      price,
-      lowPrice, // camelCase from client
-      recommended,
-      // The 'images' and 'faqs' fields are ignored here as they are not in the 'products' table
-    } = await request.json()
+    const body: ProductWithRelations = await request.json()
+    const { images, faqs, ...productData } = body
 
-    // This is where the conversion happens: mapping camelCase from the request to snake_case for the DB.
-    const productData = {
-      name,
-      category_id,
-      description,
-      moq: String(moq), // DB column is 'text'
-      fabricType: fabricType, // Convert to snake_case
-      sizeRange: sizeRange, // Convert to snake_case
-      price: String(price), // DB column is 'text'
-      lowPrice: lowPrice ? String(lowPrice) : null, // Convert to snake_case
-      recommended,
+    // Basic validation for productData
+    if (!productData.name || !productData.category_id || productData.price === undefined) {
+      return NextResponse.json({ message: 'Missing required product fields (name, category_id, price)' }, { status: 400 })
     }
 
-    const { data, error } = await supabaseAdmin.from('products').insert(productData).select().single()
-
-    if (error) {
-      console.error('Error adding product:', error)
-      // This is likely a client-side data issue, so a 400 status is more appropriate
-      return NextResponse.json({ message: 'Error adding product', error: error.message }, { status: 400 })
+    // Prepare product data for insertion into 'products' table
+    const productToInsert = {
+      name: productData.name,
+      category_id: productData.category_id,
+      description: productData.description,
+      moq: productData.shop_name, // Map shop_name from frontend to moq for DB
+      fabric_type: productData.fabricType, // Map fabricType from frontend to fabric_type for DB
+      size_range: productData.sizeRange, // Map sizeRange from frontend to size_range for DB
+      price: Number(productData.price), // Ensure price is a number
+      low_price: productData.lowPrice ? Number(productData.lowPrice) : null, // Map lowPrice to low_price for DB
+      recommended: productData.recommended || false,
     }
 
-    return NextResponse.json(data, { status: 201 })
+    const { data: product, error: productError } = await supabaseAdmin.from('products').insert([productToInsert]).select().single()
+
+    if (productError) {
+      console.error('Error adding product:', productError)
+      return NextResponse.json({ message: 'Error adding product', error: productError.message }, { status: 500 })
+    }
+
+    // Handle images if provided
+    if (images && images.length > 0) {
+      const imagesToInsert = images.map((url, index) => ({
+        product_id: product.id,
+        image_url: url,
+        display_order: index,
+      }))
+      const { error: imagesError } = await supabaseAdmin.from('product_images').insert(imagesToInsert)
+      if (imagesError) {
+        console.error('Error adding product images:', imagesError)
+        return NextResponse.json({ message: 'Error adding product images', error: imagesError.message }, { status: 500 })
+      }
+    }
+
+    // Handle FAQs if provided
+    if (faqs && faqs.length > 0) {
+      const faqsToInsert = faqs.map((faq, index) => ({
+        product_id: product.id,
+        question: faq.question,
+        answer: faq.answer,
+        display_order: index,
+      }))
+      const { error: faqsError } = await supabaseAdmin.from('product_faqs').insert(faqsToInsert)
+      if (faqsError) {
+        console.error('Error adding product FAQs:', faqsError)
+        return NextResponse.json({ message: 'Error adding product FAQs', error: faqsError.message }, { status: 500 })
+      }
+    }
+
+    return NextResponse.json(product, { status: 201 })
   } catch (error) {
     console.error('Products API POST error:', error)
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 })

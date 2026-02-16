@@ -10,13 +10,12 @@ import { Loader2 } from 'lucide-react' // Added Loader2 import
 import type { Product, Category, ProductWithRelations } from '@/lib/types'
 
 interface ProductDetailsPageProps {
-  params: { id: string } // Changed from Promise<{ id: string }> to { id: string }
+  params: Promise<{ id: string }> // Changed from { id: string } to Promise<{ id: string }>
 }
 
 export default function ProductDetailsPage({ params }: ProductDetailsPageProps) {
   const unwrappedParams = React.use(params);
   const productId = unwrappedParams.id;
-
   const [product, setProduct] = useState<ProductWithRelations | null>(null)
   const [categories, setCategories] = useState<Category[]>([])
   const [relatedProducts, setRelatedProducts] = useState<ProductWithRelations[]>([])
