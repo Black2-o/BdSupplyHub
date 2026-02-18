@@ -51,7 +51,8 @@ export default function ProductDetailsPage({ params }: ProductDetailsPageProps) 
 
         const productData: ProductWithRelations = await productResponse.json()
         const categoriesData: Category[] = await categoriesResponse.json()
-        const allProductsData: ProductWithRelations[] = await allProductsResponse.json()
+        const allProductsResult = await allProductsResponse.json() // Get the full response object
+        const allProductsData: ProductWithRelations[] = allProductsResult.products // Extract the products array
 
         setProduct(productData)
         setCategories(categoriesData)

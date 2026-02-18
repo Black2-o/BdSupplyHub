@@ -29,6 +29,8 @@ export default function Home() {
   const [loadingProducts, setLoadingProducts] = useState(true)
   const [loadingCategories, setLoadingCategories] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     async function fetchData() {
@@ -36,22 +38,27 @@ export default function Home() {
       setLoadingProducts(true)
       setError(null)
       try {
+        // The limit (productsPerPage) is now implicitly 12 in the backend, no need to send it explicitly unless changed.
+        const productsApiUrl = `/api/products?page=${currentPage}${selectedCategory ? `&categoryId=${selectedCategory}` : ''}`;
+
         const [productsResponse, categoriesResponse] = await Promise.all([
-          fetch('/api/products'),
+          fetch(productsApiUrl),
           fetch('/api/categories'),
         ])
 
         if (!productsResponse.ok) {
-          throw new Error('Failed to fetch products')
+          const errorData = await productsResponse.json();
+          throw new Error(errorData.message || 'Failed to fetch products');
         }
         if (!categoriesResponse.ok) {
           throw new Error('Failed to fetch categories')
         }
 
-        const productsData: ProductWithRelations[] = await productsResponse.json()
+        const productsData = await productsResponse.json()
         const categoriesData: Category[] = await categoriesResponse.json()
 
-        setProducts(productsData)
+        setProducts(productsData.products)
+        setTotalPages(productsData.totalPages); // Use totalPages directly from API response
         setCategories(categoriesData)
       } catch (err: any) {
         setError(err.message || 'An error occurred while fetching data.')
@@ -62,11 +69,12 @@ export default function Home() {
       }
     }
     fetchData()
-  }, [])
+  }, [currentPage, selectedCategory]) // Remove productsPerPage from dependencies
 
-  const filteredProducts = selectedCategory
-    ? products.filter((p) => p.category_id === selectedCategory)
-    : products
+  // Remove client-side filtering as it's now handled by the API
+  // const filteredProducts = selectedCategory
+  //   ? products.filter((p) => p.category_id === selectedCategory)
+  //   : products
 
   const recommendedProducts = products.filter((p) => p.recommended)
 
@@ -79,6 +87,12 @@ export default function Home() {
       carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
     }
   }
+
+  // Handle category change and reset page
+  const handleCategoryChange = (categoryId: string | null) => {
+    setSelectedCategory(categoryId);
+    setCurrentPage(1); // Reset to first page when category changes
+  };
 
   if (loadingProducts || loadingCategories) {
     return (
@@ -123,7 +137,7 @@ export default function Home() {
         <div className="mb-12">
           <div className="flex gap-2 flex-wrap mb-6">
             <button
-              onClick={() => setSelectedCategory(null)}
+              onClick={() => handleCategoryChange(null)}
               className={`px-4 py-2 border font-medium transition-colors ${
                 selectedCategory === null
                   ? 'bg-black text-white border-black'
@@ -135,7 +149,7 @@ export default function Home() {
             {categories.map((cat) => (
               <button
                 key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
+                onClick={() => handleCategoryChange(cat.id)}
                 className={`px-4 py-2 border font-medium transition-colors ${
                   selectedCategory === cat.id
                     ? 'bg-black text-white border-black'
@@ -149,14 +163,39 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
-          {filteredProducts.map((product) => (
+          {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
 
-        {filteredProducts.length === 0 && (
+        {products.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground">No products found in this category</p>
+          </div>
+        )}
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center space-x-4 my-8">
+            <Button
+              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              variant="outline"
+              className="border-black text-black hover:bg-black hover:text-white"
+            >
+              Previous
+            </Button>
+            <span className="text-lg font-medium">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              variant="outline"
+              className="border-black text-black hover:bg-black hover:text-white"
+            >
+              Next
+            </Button>
           </div>
         )}
 

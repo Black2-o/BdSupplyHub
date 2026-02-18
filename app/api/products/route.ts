@@ -5,11 +5,28 @@ import { ProductWithRelations } from '@/lib/types'
 
 export async function GET(request: NextRequest) {
   try {
-    const { data: productsData, error } = await supabase.from('products').select('*, categories(name), product_images(image_url, display_order)')
+    const searchParams = request.nextUrl.searchParams;
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '12'); // Default limit to 12
+    const categoryId = searchParams.get('categoryId'); // Get categoryId from query params
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+
+    // Correct Supabase v2 query pattern: call .select() first
+    let query = supabase
+      .from('products')
+      .select('*, categories(name), product_images(image_url, display_order)', { count: 'exact' });
+
+    if (categoryId && categoryId !== '') {
+      query = query.eq('category_id', categoryId);
+    }
+
+    // Now execute the query with range and get data and count
+    const { data: productsData, count, error } = await query.range(from, to);
 
     if (error) {
-      console.error('Error fetching products:', error)
-      return NextResponse.json({ message: 'Error fetching products', error: error.message }, { status: 500 })
+      console.error('Error fetching products:', error);
+      return NextResponse.json({ message: 'Error fetching products', error: error.message }, { status: 500 });
     }
 
     // Transform the data to match ProductWithRelations structure
@@ -36,10 +53,17 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json(products, { status: 200 })
-  } catch (error) {
+    return NextResponse.json({
+      products,
+      totalCount: count,
+      page,
+      totalPages: Math.ceil((count || 0) / limit),
+    }, { status: 200 })
+  } catch (error: unknown) { // Use unknown for safety
     console.error('Products API error:', error)
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
+    // Safely extract error message
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    return NextResponse.json({ message: `Internal server error: ${errorMessage}` }, { status: 500 })
   }
 }
 
