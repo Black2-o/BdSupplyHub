@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ user }, { status: 200 })
   } catch (error) {
-    console.error('Session endpoint error:', error)
+    // console.error('Session endpoint error:', error)
     return NextResponse.json({ user: null, message: 'An error occurred checking session' }, { status: 500 })
   }
 }

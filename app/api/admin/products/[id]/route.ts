@@ -22,7 +22,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
       .single()
 
     if (error) {
-      console.error(`Error fetching admin product with ID ${id}:`, error)
+      // console.error(`Error fetching admin product with ID ${id}:`, error)
       return NextResponse.json({ message: `Error fetching product with ID ${id}`, error: error.message }, { status: 500 })
     }
 
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
 
     return NextResponse.json(product, { status: 200 })
   } catch (error) {
-    console.error('Admin Single Product GET API error:', error)
+    // console.error('Admin Single Product GET API error:', error)
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }
@@ -85,7 +85,7 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
     const { data: updatedProductData, error: productError } = await supabaseAdmin.from('products').update(productToUpdate).eq('id', id).select().single()
 
     if (productError) {
-      console.error(`Error updating product with ID ${id}:`, productError)
+      // console.error(`Error updating product with ID ${id}:`, productError)
       return NextResponse.json({ message: `Error updating product with ID ${id}`, error: productError.message }, { status: 500 })
     }
 
@@ -94,7 +94,7 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
       // Delete existing images for this product
       const { error: deleteImagesError } = await supabaseAdmin.from('product_images').delete().eq('product_id', id)
       if (deleteImagesError) {
-        console.error('Error deleting existing product images:', deleteImagesError)
+        // console.error('Error deleting existing product images:', deleteImagesError)
         return NextResponse.json({ message: 'Error updating product images', error: deleteImagesError.message }, { status: 500 })
       }
 
@@ -106,9 +106,8 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
           display_order: index,
         }))
         const { error: insertImagesError } = await supabaseAdmin.from('product_images').insert(imagesToInsert)
-        if (insertImagesError) {
-          console.error('Error inserting new product images:', insertImagesError)
-          return NextResponse.json({ message: 'Error inserting new product images', error: insertImagesError.message }, { status: 500 })
+              if (insertImagesError) {
+                // console.error('Error inserting new product images:', insertImagesError)          return NextResponse.json({ message: 'Error inserting new product images', error: insertImagesError.message }, { status: 500 })
         }
       }
     }
@@ -118,7 +117,7 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
       // Delete existing FAQs for this product
       const { error: deleteFaqsError } = await supabaseAdmin.from('product_faqs').delete().eq('product_id', id)
       if (deleteFaqsError) {
-        console.error('Error deleting existing product FAQs:', deleteFaqsError)
+        // console.error('Error deleting existing product FAQs:', deleteFaqsError)
         return NextResponse.json({ message: 'Error updating product FAQs', error: deleteFaqsError.message }, { status: 500 })
       }
 
@@ -131,16 +130,15 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
           display_order: index,
         }))
         const { error: insertFaqsError } = await supabaseAdmin.from('product_faqs').insert(faqsToInsert)
-        if (insertFaqsError) {
-          console.error('Error inserting new product FAQs:', insertFaqsError)
-          return NextResponse.json({ message: 'Error inserting new product FAQs', error: insertFaqsError.message }, { status: 500 })
+              if (insertFaqsError) {
+                // console.error('Error inserting new product FAQs:', insertFaqsError)          return NextResponse.json({ message: 'Error inserting new product FAQs', error: insertFaqsError.message }, { status: 500 })
         }
       }
     }
 
     return NextResponse.json(updatedProductData, { status: 200 })
   } catch (error) {
-    console.error('Admin Product PUT API error:', error)
+    // console.error('Admin Product PUT API error:', error)
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }
@@ -161,13 +159,13 @@ export async function DELETE(request: NextRequest, context: { params: Promise<{ 
     const { error } = await supabaseAdmin.from('products').delete().eq('id', id)
 
     if (error) {
-      console.error(`Error deleting product with ID ${id}:`, error)
+      // console.error(`Error deleting product with ID ${id}:`, error)
       return NextResponse.json({ message: `Error deleting product with ID ${id}`, error: error.message }, { status: 500 })
     }
 
     return NextResponse.json({ message: 'Product deleted successfully' }, { status: 200 })
   } catch (error) {
-    console.error('Admin Product DELETE API error:', error)
+    // console.error('Admin Product DELETE API error:', error)
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }

@@ -78,7 +78,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       setCategories(categoriesData)
     } catch (err: any) {
       setApiError(err.message || 'An error occurred while fetching data.')
-      console.error('Failed to fetch admin data:', err)
+      // console.error('Failed to fetch admin data:', err)
     } finally {
       setLoading(false)
     }
@@ -272,7 +272,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
           images: [...(prev.images || []), data.secure_url],
         }))
       } catch (error) {
-        console.error('Error uploading image:', error)
+        // console.error('Error uploading image:', error)
         setUploadError(`Failed to upload ${file.name}. Please try again.`)
       } finally {
         setUploadingImages((prev) => ({ ...prev, [imageIndex]: false }))

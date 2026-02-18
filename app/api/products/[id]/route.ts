@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
       .single()
 
     if (error) {
-      console.error(`Error fetching product with ID ${id}:`, error)
+      // console.error(`Error fetching product with ID ${id}:`, error)
       return NextResponse.json({ message: `Error fetching product with ID ${id}`, error: error.message }, { status: 500 })
     }
 
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
 
     return NextResponse.json(product, { status: 200 })
   } catch (error) {
-    console.error('Single product API error:', error)
+    // console.error('Single product API error:', error)
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }

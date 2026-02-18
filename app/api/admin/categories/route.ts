@@ -13,13 +13,13 @@ export async function GET(request: NextRequest) {
     const { data: categories, error } = await supabaseAdmin.from('categories').select('*')
 
     if (error) {
-      console.error('Error fetching admin categories:', error)
+      // console.error('Error fetching admin categories:', error)
       return NextResponse.json({ message: 'Error fetching categories', error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(categories, { status: 200 })
   } catch (error) {
-    console.error('Admin Categories GET API error:', error)
+    // console.error('Admin Categories GET API error:', error)
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }
@@ -44,13 +44,13 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabaseAdmin.from('categories').insert([newCategory]).select().single()
 
     if (error) {
-      console.error('Error adding category:', error)
+      // console.error('Error adding category:', error)
       return NextResponse.json({ message: 'Error adding category', error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(data, { status: 201 })
   } catch (error) {
-    console.error('Admin Categories POST API error:', error)
+    // console.error('Admin Categories POST API error:', error)
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }

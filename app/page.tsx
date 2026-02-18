@@ -62,7 +62,7 @@ export default function Home() {
         setCategories(categoriesData)
       } catch (err: any) {
         setError(err.message || 'An error occurred while fetching data.')
-        console.error('Failed to fetch data:', err)
+        // console.error('Failed to fetch data:', err)
       } finally {
         setLoadingProducts(false)
         setLoadingCategories(false)

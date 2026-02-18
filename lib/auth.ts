@@ -97,7 +97,7 @@ export async function loginAdmin(emailOrUsername: string, password: string): Pro
       },
     }
   } catch (error) {
-    console.error('Login error:', error)
+    // console.error('Login error:', error)
     return {
       success: false,
       message: 'An error occurred during login',
@@ -120,7 +120,7 @@ export async function getUserById(userId: string): Promise<User | null> {
 
     return user as User
   } catch (error) {
-    console.error('Error fetching user:', error)
+    // console.error('Error fetching user:', error)
     return null
   }
 }
@@ -136,7 +136,7 @@ export async function verifyAdminUser(userId: string): Promise<boolean> {
 
     return user?.is_admin === true
   } catch (error) {
-    console.error('Error verifying admin:', error)
+    // console.error('Error verifying admin:', error)
     return false
   }
 }
@@ -165,7 +165,7 @@ export async function verifyAdminMiddleware(request: NextRequest): Promise<User 
 
     return user
   } catch (error) {
-    console.error('Error in verifyAdminMiddleware:', error)
+    // console.error('Error in verifyAdminMiddleware:', error)
     return null
   }
 }

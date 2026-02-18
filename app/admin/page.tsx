@@ -31,7 +31,7 @@ export default function AdminLoginPage() {
         }
       }
     } catch (error) {
-      console.error('Error checking session:', error)
+      // console.error('Error checking session:', error)
     } finally {
       setLoading(false)
     }

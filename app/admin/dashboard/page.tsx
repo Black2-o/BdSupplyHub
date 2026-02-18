@@ -30,7 +30,7 @@ export default function AdminDashboardPage() {
         router.push('/admin')
       }
     } catch (error) {
-      console.error('Error checking session:', error)
+      // console.error('Error checking session:', error)
       router.push('/admin') // Redirect on error
     } finally {
       setLoading(false)
@@ -43,7 +43,7 @@ export default function AdminDashboardPage() {
       setCurrentUser(null)
       router.push('/admin') // Redirect to admin login after logout
     } catch (error) {
-      console.error('Logout error:', error)
+      // console.error('Logout error:', error)
     }
   }
 

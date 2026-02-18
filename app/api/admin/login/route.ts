@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     return response
   } catch (error) {
-    console.error('Admin login API error:', error)
+    // console.error('Admin login API error:', error)
     return NextResponse.json(
       {
         success: false,

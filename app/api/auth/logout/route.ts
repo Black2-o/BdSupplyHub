@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
     return response
   } catch (error) {
-    console.error('Logout endpoint error:', error)
+    // console.error('Logout endpoint error:', error)
     return NextResponse.json(
       {
         success: false,

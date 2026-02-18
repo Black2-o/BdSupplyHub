@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       .select('*, product_images(image_url, display_order), product_faqs(*)')
 
     if (error) {
-      console.error('Error fetching admin products:', error)
+      // console.error('Error fetching admin products:', error)
       return NextResponse.json({ message: 'Error fetching products', error: error.message }, { status: 500 })
     }
 
@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(products, { status: 200 })
   } catch (error) {
-    console.error('Admin Products GET API error:', error)
+    // console.error('Admin Products GET API error:', error)
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     const { data: product, error: productError } = await supabaseAdmin.from('products').insert([productToInsert]).select().single()
 
     if (productError) {
-      console.error('Error adding product:', productError)
+      // console.error('Error adding product:', productError)
       return NextResponse.json({ message: 'Error adding product', error: productError.message }, { status: 500 })
     }
 
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       }))
       const { error: imagesError } = await supabaseAdmin.from('product_images').insert(imagesToInsert)
       if (imagesError) {
-        console.error('Error adding product images:', imagesError)
+        // console.error('Error adding product images:', imagesError)
         // Optionally, handle rollback of product if image insertion fails
         return NextResponse.json({ message: 'Error adding product images', error: imagesError.message }, { status: 500 })
       }
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
       }))
       const { error: faqsError } = await supabaseAdmin.from('product_faqs').insert(faqsToInsert)
       if (faqsError) {
-        console.error('Error adding product FAQs:', faqsError)
+        // console.error('Error adding product FAQs:', faqsError)
         // Optionally, handle rollback of product if FAQ insertion fails
         return NextResponse.json({ message: 'Error adding product FAQs', error: faqsError.message }, { status: 500 })
       }
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(product, { status: 201 })
   } catch (error) {
-    console.error('Admin Products POST API error:', error)
+    // console.error('Admin Products POST API error:', error)
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }

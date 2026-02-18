@@ -37,7 +37,7 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
         setError(result.message || 'Login failed')
       }
     } catch (err) {
-      console.error('Login error:', err)
+      // console.error('Login error:', err)
       setError('An unexpected error occurred during login.')
     }
   }

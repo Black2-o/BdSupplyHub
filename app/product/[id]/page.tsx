@@ -68,7 +68,7 @@ export default function ProductDetailsPage({ params }: ProductDetailsPageProps) 
         setRelatedProducts(related)
       } catch (err: any) {
         setError(err.message || 'An error occurred while fetching data.')
-        console.error('Failed to fetch product details:', err)
+        // console.error('Failed to fetch product details:', err)
       } finally {
         setLoading(false)
       }

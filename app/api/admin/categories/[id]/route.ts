@@ -18,7 +18,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     const { data: category, error } = await supabaseAdmin.from('categories').select('*').eq('id', id).single()
 
     if (error) {
-      console.error(`Error fetching admin category with ID ${id}:`, error)
+      // console.error(`Error fetching admin category with ID ${id}:`, error)
       return NextResponse.json({ message: `Error fetching category with ID ${id}`, error: error.message }, { status: 500 })
     }
 
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
 
     return NextResponse.json(category, { status: 200 })
   } catch (error) {
-    console.error('Admin Single Category GET API error:', error)
+    // console.error('Admin Single Category GET API error:', error)
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }
@@ -55,13 +55,13 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
     const { data, error } = await supabaseAdmin.from('categories').update(body).eq('id', id).select().single()
 
     if (error) {
-      console.error(`Error updating category with ID ${id}:`, error)
+      // console.error(`Error updating category with ID ${id}:`, error)
       return NextResponse.json({ message: `Error updating category with ID ${id}`, error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(data, { status: 200 })
   } catch (error) {
-    console.error('Admin Category PUT API error:', error)
+    // console.error('Admin Category PUT API error:', error)
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }
@@ -82,13 +82,13 @@ export async function DELETE(request: NextRequest, context: { params: Promise<{ 
     const { error } = await supabaseAdmin.from('categories').delete().eq('id', id)
 
     if (error) {
-      console.error(`Error deleting category with ID ${id}:`, error)
+      // console.error(`Error deleting category with ID ${id}:`, error)
       return NextResponse.json({ message: `Error deleting category with ID ${id}`, error: error.message }, { status: 500 })
     }
 
     return NextResponse.json({ message: 'Category deleted successfully' }, { status: 200 })
   } catch (error) {
-    console.error('Admin Category DELETE API error:', error)
+    // console.error('Admin Category DELETE API error:', error)
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }

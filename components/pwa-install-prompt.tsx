@@ -19,14 +19,10 @@ const PwaInstallPrompt = () => {
   const [isPromptVisible, setIsPromptVisible] = useState(false)
 
   useEffect(() => {
-    console.log(
-      "PWA Install Prompt: Component mounted. Waiting for beforeinstallprompt event..."
-    )
+    // console.log("PWA Install Prompt: Component mounted. Waiting for beforeinstallprompt event...")
 
     const handleBeforeInstallPrompt = (event: Event) => {
-      console.log(
-        "PWA Install Prompt: 'beforeinstallprompt' event has been successfully fired and captured."
-      )
+      // console.log("PWA Install Prompt: 'beforeinstallprompt' event has been successfully fired and captured.")
       event.preventDefault() // Prevent the default browser prompt
       setInstallPromptEvent(event as BeforeInstallPromptEvent)
       setIsPromptVisible(true) // Show our custom prompt
@@ -36,7 +32,7 @@ const PwaInstallPrompt = () => {
 
     // Listen for the appinstalled event
     const handleAppInstalled = () => {
-      console.log("PWA Install Prompt: App was installed.")
+      // console.log("PWA Install Prompt: App was installed.")
       setIsPromptVisible(false) // Hide the prompt once installed
       setInstallPromptEvent(null) // Clear the event
     }
@@ -46,14 +42,12 @@ const PwaInstallPrompt = () => {
     // A timer to help debug if the event never fires.
     const timer = setTimeout(() => {
       if (installPromptEvent === null) {
-        console.log(
-          "PWA Install Prompt: 'beforeinstallprompt' event was not fired after 5 seconds. Common reasons: 1) Not on HTTPS, 2) App already installed, 3) Browser's user engagement criteria not met."
-        )
+        // console.log("PWA Install Prompt: 'beforeinstallprompt' event was not fired after 5 seconds. Common reasons: 1) Not on HTTPS, 2) App already installed, 3) Browser's user engagement criteria not met.")
       }
     }, 5000)
 
     return () => {
-      console.log("PWA Install Prompt: Component unmounted.")
+      // console.log("PWA Install Prompt: Component unmounted.")
       window.removeEventListener(
         "beforeinstallprompt",
         handleBeforeInstallPrompt

@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     const { data: productsData, count, error } = await query.range(from, to);
 
     if (error) {
-      console.error('Error fetching products:', error);
+      // console.error('Error fetching products:', error);
       return NextResponse.json({ message: 'Error fetching products', error: error.message }, { status: 500 });
     }
 
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil((count || 0) / limit),
     }, { status: 200 })
   } catch (error: unknown) { // Use unknown for safety
-    console.error('Products API error:', error)
+    // console.error('Products API error:', error)
     // Safely extract error message
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     return NextResponse.json({ message: `Internal server error: ${errorMessage}` }, { status: 500 })
@@ -99,7 +99,7 @@ export async function POST(request: NextRequest) {
     const { data: product, error: productError } = await supabaseAdmin.from('products').insert([productToInsert]).select().single()
 
     if (productError) {
-      console.error('Error adding product:', productError)
+      // console.error('Error adding product:', productError)
       return NextResponse.json({ message: 'Error adding product', error: productError.message }, { status: 500 })
     }
 
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
       }))
       const { error: imagesError } = await supabaseAdmin.from('product_images').insert(imagesToInsert)
       if (imagesError) {
-        console.error('Error adding product images:', imagesError)
+        // console.error('Error adding product images:', imagesError)
         return NextResponse.json({ message: 'Error adding product images', error: imagesError.message }, { status: 500 })
       }
     }
@@ -127,14 +127,14 @@ export async function POST(request: NextRequest) {
       }))
       const { error: faqsError } = await supabaseAdmin.from('product_faqs').insert(faqsToInsert)
       if (faqsError) {
-        console.error('Error adding product FAQs:', faqsError)
+        // console.error('Error adding product FAQs:', faqsError)
         return NextResponse.json({ message: 'Error adding product FAQs', error: faqsError.message }, { status: 500 })
       }
     }
 
     return NextResponse.json(product, { status: 201 })
   } catch (error) {
-    console.error('Products API POST error:', error)
+    // console.error('Products API POST error:', error)
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 })
   }
 }
