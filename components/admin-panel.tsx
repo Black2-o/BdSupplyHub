@@ -10,17 +10,19 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { X, Upload, Plus, Trash2, Loader2 } from 'lucide-react'
-import type { Product, Category, ProductWithRelations } from '@/lib/types'
+import type { Product, Category, Shop, ProductWithRelations } from '@/lib/types'
 
 interface AdminPanelProps {
   onLogout: () => void
 }
 
 export function AdminPanel({ onLogout }: AdminPanelProps) {
-  const [activeTab, setActiveTab] = useState<'products' | 'categories'>('products')
+  const [activeTab, setActiveTab] = useState<'products' | 'categories' | 'shops'>('products')
   const [categories, setCategories] = useState<Category[]>([])
+  const [shops, setShops] = useState<Shop[]>([])
   const [products, setProducts] = useState<ProductWithRelations[]>([])
   const [newCategoryName, setNewCategoryName] = useState('')
+  const [newShopName, setNewShopName] = useState('')
   const [editingProduct, setEditingProduct] = useState<ProductWithRelations | null>(null)
   const [newFaqQuestion, setNewFaqQuestion] = useState('')
   const [newFaqAnswer, setNewFaqAnswer] = useState('')
@@ -33,6 +35,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
   const [formData, setFormData] = useState<Partial<ProductWithRelations>>({
     name: '',
     category_id: '',
+    shop_id: '',
     description: '',
     shop_name: '',
     fabricType: '',
@@ -51,6 +54,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       product.name.toLowerCase().includes(lowerCaseSearchTerm) ||
       (product.description && product.description.toLowerCase().includes(lowerCaseSearchTerm)) ||
       (categories.find(cat => cat.id === product.category_id)?.name.toLowerCase().includes(lowerCaseSearchTerm)) ||
+      (shops.find(shop => shop.id === product.shop_id)?.name.toLowerCase().includes(lowerCaseSearchTerm)) ||
       (product.shop_name && product.shop_name.toLowerCase().includes(lowerCaseSearchTerm))
     );
   });
@@ -59,9 +63,10 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
     setLoading(true)
     setApiError(null)
     try {
-      const [productsResponse, categoriesResponse] = await Promise.all([
+      const [productsResponse, categoriesResponse, shopsResponse] = await Promise.all([
         fetch('/api/admin/products'),
         fetch('/api/admin/categories'),
+        fetch('/api/admin/shops'),
       ])
 
       if (!productsResponse.ok) {
@@ -70,12 +75,17 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       if (!categoriesResponse.ok) {
         throw new Error('Failed to fetch categories for admin panel')
       }
+      if (!shopsResponse.ok) {
+        throw new Error('Failed to fetch shops for admin panel')
+      }
 
       const productsData: ProductWithRelations[] = await productsResponse.json()
       const categoriesData: Category[] = await categoriesResponse.json()
+      const shopsData: Shop[] = await shopsResponse.json()
 
       setProducts(productsData)
       setCategories(categoriesData)
+      setShops(shopsData)
     } catch (err: any) {
       setApiError(err.message || 'An error occurred while fetching data.')
       // console.error('Failed to fetch admin data:', err)
@@ -133,9 +143,54 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
     }
   }
 
+  const handleAddShop = async () => {
+    if (!newShopName.trim()) {
+      setApiError('Shop name cannot be empty')
+      return
+    }
+    setLoading(true)
+    setApiError(null)
+    try {
+      const response = await fetch('/api/admin/shops', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newShopName }),
+      })
+      if (!response.ok) {
+        const errData = await response.json()
+        throw new Error(errData.message || 'Failed to add shop')
+      }
+      setNewShopName('')
+      fetchData() // Refresh data
+    } catch (err: any) {
+      setApiError(err.message || 'Error adding shop')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDeleteShop = async (id: string) => {
+    setLoading(true)
+    setApiError(null)
+    try {
+      const response = await fetch(`/api/admin/shops/${id}`, {
+        method: 'DELETE',
+      })
+      if (!response.ok) {
+        const errData = await response.json()
+        throw new Error(errData.message || 'Failed to delete shop')
+      }
+      fetchData() // Refresh data
+    } catch (err: any) {
+      setApiError(err.message || 'Error deleting shop')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleAddProduct = async () => {
-    if (!formData.name || !formData.category_id || formData.price === undefined || formData.price <= 0 || !formData.shop_name) {
-      setApiError('Missing required product fields: name, category ID, price (must be > 0), shop_name.')
+    if (!formData.name || !formData.category_id || formData.price === undefined || formData.price <= 0 || (!formData.shop_id && !formData.shop_name)) {
+      setApiError('Missing required product fields: name, category ID, price (must be > 0), and shop.')
       return
     }
     setLoading(true)
@@ -151,7 +206,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
         throw new Error(errData.message || 'Failed to add product')
       }
       setFormData({
-        name: '', category_id: '', description: '', shop_name: '', fabricType: '', sizeRange: '',
+        name: '', category_id: '', shop_id: '', description: '', shop_name: '', fabricType: '', sizeRange: '',
         price: 0, lowPrice: 0, images: [], faqs: [], recommended: false,
       })
       setNewFaqQuestion('')
@@ -169,8 +224,8 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       setApiError('No product selected for editing.')
       return
     }
-    if (!formData.name || !formData.category_id || formData.price === undefined || formData.price <= 0 || !formData.shop_name) {
-      setApiError('Missing or invalid required product fields: name, category ID, price (must be > 0), shop_name.')
+    if (!formData.name || !formData.category_id || formData.price === undefined || formData.price <= 0 || (!formData.shop_id && !formData.shop_name)) {
+      setApiError('Missing or invalid required product fields: name, category ID, price (must be > 0), and shop.')
       return
     }
     setLoading(true)
@@ -187,7 +242,7 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
       }
       setEditingProduct(null)
       setFormData({
-        name: '', category_id: '', description: '', shop_name: '', fabricType: '', sizeRange: '',
+        name: '', category_id: '', shop_id: '', description: '', shop_name: '', fabricType: '', sizeRange: '',
         price: 0, lowPrice: 0, images: [], faqs: [], recommended: false,
       })
       setNewFaqQuestion('')
@@ -314,6 +369,12 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
         >
           Categories
         </button>
+        <button
+          onClick={() => setActiveTab('shops')}
+          className={`px-4 py-2 font-bold ${activeTab === 'shops' ? 'border-b-2 border-black' : 'text-muted-foreground'}`}
+        >
+          Shops
+        </button>
       </div>
 
       {activeTab === 'categories' && (
@@ -356,6 +417,46 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
         </div>
       )}
 
+      {activeTab === 'shops' && (
+        <div className="space-y-6">
+          <div className="border border-black p-6">
+            <h2 className="text-xl font-bold mb-4">Add Shop</h2>
+            <div className="flex gap-2">
+              <Input
+                type="text"
+                value={newShopName}
+                onChange={(e) => setNewShopName(e.target.value)}
+                placeholder="Shop name"
+                className="border-black flex-1"
+              />
+              <Button
+                onClick={handleAddShop}
+                className="bg-black text-white hover:bg-gray-800"
+              >
+                Add
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <h3 className="text-lg font-bold">Existing Shops</h3>
+            {shops.map((shop) => (
+              <div key={shop.id} className="flex justify-between items-center border border-black p-4">
+                <span className="font-medium">{shop.name}</span>
+                <Button
+                  onClick={() => handleDeleteShop(shop.id)}
+                  variant="outline"
+                  className="border-black text-red-600"
+                  size="sm"
+                >
+                  Delete
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {activeTab === 'products' && (
         <div className="space-y-6">
           <Accordion type="single" collapsible defaultValue="add-new-product">
@@ -377,21 +478,52 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                         className="border-black"
                       />
 
-                      <Select
-                        value={formData.category_id || ''}
-                        onValueChange={(value) => setFormData({ ...formData, category_id: value })}
-                      >
-                        <SelectTrigger className="border-black">
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map((cat) => (
-                            <SelectItem key={cat.id} value={cat.id}>
-                              {cat.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Category</label>
+                          <Select
+                            value={formData.category_id || ''}
+                            onValueChange={(value) => setFormData({ ...formData, category_id: value })}
+                          >
+                            <SelectTrigger className="border-black">
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {categories.map((cat) => (
+                                <SelectItem key={cat.id} value={cat.id}>
+                                  {cat.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Shop</label>
+                          <Select
+                            value={formData.shop_id || ''}
+                            onValueChange={(value) => {
+                              const selectedShop = shops.find(s => s.id === value);
+                              setFormData({ 
+                                ...formData, 
+                                shop_id: value,
+                                shop_name: selectedShop?.name || '' 
+                              });
+                            }}
+                          >
+                            <SelectTrigger className="border-black">
+                              <SelectValue placeholder="Select shop" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {shops.map((shop) => (
+                                <SelectItem key={shop.id} value={shop.id}>
+                                  {shop.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
 
                       <Textarea
                         value={formData.description || ''}
@@ -427,14 +559,6 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                   <div className="border-b border-gray-200 pb-6">
                     <h3 className="text-lg font-bold mb-4">Product Details</h3>
                     <div className="space-y-4">
-                      <Input
-                        type="text"
-                        value={formData.shop_name || ''}
-                        onChange={(e) => setFormData({ ...formData, shop_name: e.target.value })}
-                        placeholder="Shop Name (e.g., 'Arihant Fashion')"
-                        className="border-black"
-                      />
-
                       <Input
                         type="text"
                         value={formData.fabricType || ''}
@@ -644,7 +768,9 @@ export function AdminPanel({ onLogout }: AdminPanelProps) {
                         </div>
                         <div>
                           <span className="text-xs font-semibold text-muted-foreground">Shop Name</span>
-                          <p className="font-medium">{product.shop_name || 'N/A'}</p>
+                          <p className="font-medium">
+                            {shops.find((s) => s.id === product.shop_id)?.name || product.shop_name || 'N/A'}
+                          </p>
                         </div>
                         <div>
                           <span className="text-xs font-semibold text-muted-foreground">Images</span>

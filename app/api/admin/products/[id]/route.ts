@@ -31,7 +31,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     }
 
     // Transform the data to match ProductWithRelations structure
-    const { product_images, product_faqs, moq, fabricType, sizeRange, lowPrice, ...rest } = productData;
+    const { product_images, product_faqs, moq, fabricType, sizeRange, lowPrice, shop_id, ...rest } = productData;
     const product: ProductWithRelations = {
       ...rest,
       images: product_images
@@ -41,6 +41,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
         : [],
       faqs: product_faqs || [],
       shop_name: moq,
+      shop_id: shop_id,
       fabricType: fabricType,
       sizeRange: sizeRange,
       lowPrice: lowPrice,
@@ -70,10 +71,11 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ id:
     const { images, faqs, ...productData } = body
 
     // Prepare product data for updating the 'products' table
-    const { shop_name, fabricType, sizeRange, lowPrice, ...restOfProductData } = productData as any;
+    const { shop_name, shop_id, fabricType, sizeRange, lowPrice, ...restOfProductData } = productData as any;
     const productToUpdate: {[key: string]: any} = { ...restOfProductData };
     if (productData.price) productToUpdate.price = Number(productData.price);
     if (shop_name) productToUpdate.moq = shop_name;
+    if (shop_id) productToUpdate.shop_id = shop_id;
     if (fabricType) productToUpdate.fabricType = fabricType;
     if (sizeRange) productToUpdate.sizeRange = sizeRange;
     if (lowPrice) productToUpdate.lowPrice = lowPrice;

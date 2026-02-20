@@ -4,11 +4,17 @@ export interface Category {
   slug: string
 }
 
+export interface Shop {
+  id: string
+  name: string
+}
+
 // Represents the structure of the 'products' table
 export interface Product {
   id: string
   name: string
   category_id: string
+  shop_id?: string // Add shop_id to link to shops table
   description?: string // Make optional as per DB schema
   shop_name?: string // Make optional as per DB schema
   fabricType?: string // Make optional as per DB schema

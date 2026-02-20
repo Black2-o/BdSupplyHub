@@ -25,7 +25,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
     }
 
     // Transform the data to match ProductWithRelations structure
-    const { product_images, product_faqs, moq, fabricType, sizeRange, lowPrice, ...rest } = productData;
+    const { product_images, product_faqs, moq, fabricType, sizeRange, lowPrice, shop_id, ...rest } = productData;
     const product: ProductWithRelations = {
       ...rest,
       images: product_images
@@ -35,6 +35,7 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
         : [],
       faqs: product_faqs || [],
       shop_name: moq,
+      shop_id: shop_id,
       fabricType: fabricType,
       sizeRange: sizeRange,
       lowPrice: lowPrice,

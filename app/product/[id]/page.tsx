@@ -51,21 +51,26 @@ export default function ProductDetailsPage({ params }: ProductDetailsPageProps) 
 
         const productData: ProductWithRelations = await productResponse.json()
         const categoriesData: Category[] = await categoriesResponse.json()
-        const allProductsResult = await allProductsResponse.json() // Get the full response object
-        const allProductsData: ProductWithRelations[] = allProductsResult.products // Extract the products array
-
+        
         setProduct(productData)
         setCategories(categoriesData)
 
-        // Filter related products
-        const related = allProductsData
-          .filter(
-            (p) =>
-              p.category_id === productData.category_id &&
-              p.id !== productData.id
-          )
-          .slice(0, 3)
-        setRelatedProducts(related)
+        // Fetch related products from the same shop if available, otherwise by category
+        let relatedUrl = '/api/products?limit=10&random=true';
+        if (productData.shop_id) {
+          relatedUrl += `&shopId=${productData.shop_id}`;
+        } else {
+          relatedUrl += `&categoryId=${productData.category_id}`;
+        }
+
+        const relatedResponse = await fetch(relatedUrl);
+        if (relatedResponse.ok) {
+          const relatedResult = await relatedResponse.json();
+          const related = relatedResult.products
+            .filter((p: ProductWithRelations) => p.id !== productData.id)
+            .slice(0, 6); // Show 3 to 6 products
+          setRelatedProducts(related);
+        }
       } catch (err: any) {
         setError(err.message || 'An error occurred while fetching data.')
         // console.error('Failed to fetch product details:', err)
@@ -231,11 +236,11 @@ export default function ProductDetailsPage({ params }: ProductDetailsPageProps) 
 
       {relatedProducts.length > 0 && (
         <div className="space-y-6">
-          <h2 className="text-2xl font-bold">Recommended Products</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <h2 className="text-2xl font-bold">Recommended Products from this Shop</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {relatedProducts.map((prod) => (
               <Link key={prod.id} href={`/product/${prod.id}`}>
-                <div className="border border-black p-4 cursor-pointer hover:bg-secondary transition-colors h-full">
+                <div className="border border-black p-4 cursor-pointer hover:bg-secondary transition-colors h-full flex flex-col">
                   <div className="aspect-square bg-secondary mb-4 relative">
                     {prod.images && prod.images[0] && (
                       <Image
@@ -246,7 +251,12 @@ export default function ProductDetailsPage({ params }: ProductDetailsPageProps) 
                       />
                     )}
                   </div>
-                  <h3 className="font-bold text-sm line-clamp-2">{prod.name}</h3>
+                  <div className="flex-1">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1">
+                      {prod.shop_name}
+                    </p>
+                    <h3 className="font-bold text-sm line-clamp-2">{prod.name}</h3>
+                  </div>
                 </div>
               </Link>
             ))}

@@ -9,6 +9,8 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '12'); // Default limit to 12
     const categoryId = searchParams.get('categoryId'); // Get categoryId from query params
+    const shopId = searchParams.get('shopId'); // Get shopId from query params
+    const random = searchParams.get('random') === 'true'; // Check if random ordering is requested
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
@@ -20,6 +22,10 @@ export async function GET(request: NextRequest) {
     if (categoryId && categoryId !== '') {
       query = query.eq('category_id', categoryId);
     }
+    
+    if (shopId && shopId !== '') {
+      query = query.eq('shop_id', shopId);
+    }
 
     // Now execute the query with range and get data and count
     const { data: productsData, count, error } = await query.range(from, to);
@@ -30,7 +36,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform the data to match ProductWithRelations structure
-    const products: ProductWithRelations[] = productsData.map((product: any) => {
+    let products: ProductWithRelations[] = productsData.map((product: any) => {
       const images = product.product_images
         ? product.product_images
             .sort((a: any, b: any) => a.display_order - b.display_order)
@@ -40,18 +46,24 @@ export async function GET(request: NextRequest) {
       const category_name = product.categories?.name;
 
       // Remove the original product_images and categories objects from the product
-      const { product_images, categories, moq, fabricType, sizeRange, lowPrice, ...rest } = product;
+      const { product_images, categories, moq, fabricType, sizeRange, lowPrice, shop_id, ...rest } = product;
 
       return {
         ...rest,
         images,
         category_name,
         shop_name: moq,
+        shop_id: shop_id,
         fabricType: fabricType,
         sizeRange: sizeRange,
         lowPrice: lowPrice,
       }
     })
+
+    // Shuffle if random is true
+    if (random) {
+      products = products.sort(() => Math.random() - 0.5);
+    }
 
     return NextResponse.json({
       products,
