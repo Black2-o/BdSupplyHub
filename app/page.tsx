@@ -253,7 +253,7 @@ export default function Home() {
               <p className="text-sm font-bold text-muted-foreground uppercase mb-2">
                 Direct Contact
               </p>
-              <p className="text-lg font-bold"><a href="https://wa.me/8801345680081?text=Hello%20I%20would%20like%20more%20information" className="text-[#25D366] hover:text-[#1ebe5d] transition duration-300">WhatsApp</a> For Instant Quotes</p>
+              <p className="text-lg font-bold"><a href="https://wa.me/8801821593561?text=Hello%20I%20would%20like%20more%20information" className="text-[#25D366] hover:text-[#1ebe5d] transition duration-300">WhatsApp</a> For Instant Quotes</p>
             </div>
           </div>
         </div>

@@ -198,7 +198,7 @@ export default function ProductDetailsPage({ params }: ProductDetailsPageProps) 
             <Button
               onClick={() =>
                 window.open(
-                  `https://wa.me/8801345680081?text=${encodeURIComponent(
+                  `https://wa.me/8801821593561?text=${encodeURIComponent(
                     `Hi, I'm interested in ${product.name}\nProduct Link: https://black2o.wiki/product/${product.id}\nProduct Shop: ${product.shop_name}\n`
                   )}`,
                   '_blank'
